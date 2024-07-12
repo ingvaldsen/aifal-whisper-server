@@ -100,38 +100,38 @@ def process():
             print("Fail downloading file", file, e, "Skipping the file and going to the next one")
             continue
 
-        audio_file = 'audio/audio.m4a'
-        audio_file_mp3 = 'audio/audio.mp3'
-        if os.path.isfile(audio_file):
-            os.remove(audio_file)
+     #   audio_file = 'audio/audio.m4a'
+     #   audio_file_mp3 = 'audio/audio.mp3'
+     #   if os.path.isfile(audio_file):
+     #       os.remove(audio_file)
 
         # if file starts with url_ then process it as an url
-        if file.startswith('input/url_'):
-            with open(input_file, 'r') as fp:
-                # Read the contents of the file
-                file_contents = fp.read()
-            youtube_url = file_contents
-            print("Processing youtube url", youtube_url)
-            video_id = extract_video_id(youtube_url)
-            try:
-                audio_file = download(video_id)
-            except Exception as e:
-                print("Fail processing file", file, e)
-                s3_res.Object(bucket, file).delete()
-                continue
-        else:
-            try:
-                extract_audio(input_file, audio_file)
-            except Exception as e:
-                print("Fail processing file", file, e)
-                s3_res.Object(bucket, file).delete()
-                continue
+      #  if file.startswith('input/url_'):
+      #      with open(input_file, 'r') as fp:
+      #          # Read the contents of the file
+      #          file_contents = fp.read()
+      #      youtube_url = file_contents
+      #      print("Processing youtube url", youtube_url)
+      #      video_id = extract_video_id(youtube_url)
+      #      try:
+      #          audio_file = download(video_id)
+      #      except Exception as e:
+      #          print("Fail processing file", file, e)
+      #          s3_res.Object(bucket, file).delete()
+      #          continue
+      #  else:
+      #      try:
+      #          extract_audio(input_file, audio_file)
+      #      except Exception as e:
+      #          print("Fail processing file", file, e)
+      #          s3_res.Object(bucket, file).delete()
+      #          continue
 
-        runffmpeg(audio_file, audio_file_mp3)
+       # runffmpeg(audio_file, audio_file_mp3)
 
         print("use model", model_type_needed, "language", language)
 
-        transcription = whisperx_transcribe.transcribe(audio_file_mp3, model_type_needed, language=language)
+        transcription = whisperx_transcribe.transcribe(file, model_type_needed, language=language)
 
         s3_res.Object(bucket, 'output/' + os.path.basename(file) + '.txt').put(Body=json.dumps(transcription))
         s3_res.Object(bucket, file).delete()
